@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script>
+        (function(w){
+            function jQuery(){
+                return new jQuery.fn.init();
+            }
+            jQuery.fn=jQuery.prototype={
+                constrcutor:jQuery
+            };
+
+            var init=jQuery.fn.init=function(){
+
+            }
+            init.prototype=jQuery.fn;
+            w.jQuery=w.$=jQuery;
+        })(window);   
+        // 实现一个jQ弹出框插件
+        jQuery.fn.alert = function( msg ) {
+            alert( msg );
+        };
+
+        // 测试插件
+        var $$ = $();
+        $$.alert('弹出框插件');
+    </script>
+</head>
+
+<body>
+
+</body>
+
+</html>

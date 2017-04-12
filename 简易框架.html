@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script>
+        (function (w) {
+            var version = '1.0.0';
+
+            function jQuery(selector) {
+                return new jQuery.fn.init(selector);
+            }
+
+            jQuery.fn = jQuery.prototype = {
+                constructor: jQuery,
+                jquery: version,
+                selector: '',
+                length: 0,
+                toArray: function () {
+                    [].slice.call(this)
+                },
+                get: function (i) {
+                    if (i == null) {
+                        return this.toArray();
+                    }
+                    if (i > 0) {
+                        return this[i];
+                    } else {
+                        return this[this.length + i];
+                    }
+                },
+                _get: function (i) {
+                    return i == null ? this.toArray() : (i > 0 ? this[i] : this[this.length + i]);
+                },
+                each: function(fn){
+                    return jQuery.each(this,fn);
+                },
+                // 截取实例的部分元素，构成一个新的jQuery实例返回
+                map:function(fn){
+                    return jQuery.map(this,fn);
+                },
+                slice: function() {
+                    /*
+                    * 1、通过数组的slice截取部分元素(slice返回的是数组)，
+                    * 2、把截取到的元素转换为实例对象返回。
+                    * */
+
+                    // 因为slice的参数会有变化，所以需要是arguments，
+                    // 我们要把arguments中的每一项传给数组的slice，所以需要借用apply平铺传递过去，
+                    // 最后把slice返回数组，通过jQuery工厂保证成实例返回。
+                    var nodes = [].slice.apply( this, arguments );
+                    return jQuery( nodes );
+                },
+
+                _slice: function() {
+                    // 因为slice的参数会有变化，所以需要是arguments，
+                    // 我们要把arguments中的每一项传给数组的slice，所以需要借用apply平铺传递过去，
+                    // 最后把slice返回数组，通过jQuery工厂保证成实例返回。
+                    return jQuery( [].slice.apply( this, arguments ) );
+                },
+
+                // 获取指定下标的元素，获取的是jQuery类型的实例对象。
+                eq: function( i ) {
+                    /*
+                     * 1、如果传入null或undefined，返回一个新实例，
+                     * 2、如果传入的是正数，按照指定的下标获取元素，再包装成新实例返回
+                     * 3、如果传入的是负数，按照下标倒着( this.length + 负数 )获取元素，再包装成新实例返回
+                     * */
+
+                    // null、undefined得到新实例
+                    if( i == null ) {
+                        return jQuery();
+                    }
+
+                    if( i >= 0 ) {
+                        return jQuery( this[ i ] );
+                    }else {
+                        return jQuery( this[ this.length + i ] );
+                    }
+                },
+
+                _eq: function( i ) {
+                    return i == null? jQuery() : jQuery( this.get( i ) );
+                },
+
+                // 获取实例中的第一个元素，是jQuery类型的实例对象。
+                first: function() {
+                    return this.eq( 0 );
+                },
+
+                // 获取实例中的最后一个元素，是jQuery类型的实例对象。
+                last: function() {
+                    return this.eq( -1 );
+                },
+
+                // 原型上的方法供实例调用，
+                // 即实例.push，在调用过程中，push内的this就指向了实例，
+                // 所以这里不需要通过call和apply改变this指向即可借用数组的方法
+                push: [].push,
+                sort: [].sort,
+                splice: [].splice
+            }
+            //继承
+            jQuery.extend = jQuery.fn.extend = function (obj) {
+                for (var key in obj) {
+                    this[key] = obj[key];
+                }
+            }
+            jQuery.extend({
+                each:function (obj, fn) {
+                    var i, len, key;
+                    if ('length' in obj) {
+                        for (i = 0, len = obj.length; i < len; i++) {
+                            if (fn.call(obj[i], i, obj[i]) === false) {
+                                break;
+                            }
+                        }
+                    } else {
+                        for (key in obj) {
+                            if (fn.call(obj[key], key, obj[key])) {
+                                break;
+                            }
+                        }
+                    }
+                },
+                map:function( obj, fn ) {
+
+                    /*
+                     * 1、先判断obj是不是数组或者伪数组，
+                     * 2、如果是，则通过i的方式遍历这个对象
+                     * 3、如果不是，则通过for in的方式遍历这个对象
+                     * 4、在遍历的过程中，把每一次遍历到key和val分别传给回调。
+                     * 5、在给回调传参的时候，需要收集回调的返回值，最后把所有的返回值构成新数组返回。
+                     * */
+                    var i, len, key, result = [];
+
+                    if( 'length' in obj ) {
+                        for ( i = 0, len = obj.length; i < len; i++ ) {
+                            result.push( fn.call( obj[ i ], obj[ i ], i ) );
+                        }
+                    }else {
+                        for ( key in obj ) {
+                            result.push( fn.call( obj[ key ], obj[ key ], key ) );
+                        }
+                    }
+
+                    return result;
+                },
+                trim: function (str) {
+                    if (!typeof str == 'string') {
+                        return str;
+                    }
+                    if (str.trim) {
+                        return str.trim();
+                    }
+                    return str.replace(/^\s+|\s+$/g, '');
+                },
+
+                isHtml: function (html) {
+                    if (!html) {
+                        return false;
+                    }
+                    if (html.charAt(0) === '<' && html.charAt(html.length - 1) === '>' && html.length >=
+                        3) {
+                        return true;
+                    }
+                    return false;
+                },
+
+                _isHtml: function (html) {
+                    return !!html &&
+                        html.charAt(0) === '<' &&
+                        html.charAt(html.length - 1) == '>' &&
+                        html.length >= 3;
+                },
+
+
+                isFunction: function (fn) {
+                    if (typeof fn === 'function') {
+                        return true;
+                    }
+                    return false;
+                },
+
+                _isFunction: function (fn) {
+                    return typeof fn === 'function';
+                },
+
+                isWindow: function (w) {
+                    if (!w) {
+                        return false;
+                    }
+                    if (w.window === w) {
+                        return true;
+                    }
+                    return false;
+                },
+
+                _isWindow: function (w) {
+                    return !!w && w.window === w;
+                },
+
+                isLikeArray: function (arr) {
+                    if (init.isFunction(arr) || init.isWindow(arr) || !typeof arr == 'object') {
+                        return false;
+                    }
+                    if (({}).toString.call(arr) == '[object Array]') {
+                        return true;
+                    }
+                    if (('length' in arr) && (arr.length === 0) || (arr.length - 1 in arr)) {
+                        return true;
+                    }
+                    return false;
+                },
+
+                // 判断是不是字符串
+                isString: function (str) {
+                    if (typeof str === 'string') {
+                        return true;
+                    }
+                    return false;
+                },
+
+                // 判断是不是字符串
+                _isString: function (str) {
+                    return typeof str === 'string';
+                },
+
+                ready: function (fn) {
+                    if (document.readyState === 'complete') {
+                        fn();
+                    } else if (document.addEventListener) {
+                        document.addEventListener('DOMContentLoaded', fn);
+                    } else {
+                        document.attachEvent('onreadystatechange', function () {
+                            if (document.readyState === 'complete') {
+                                fn();
+                            }
+                        });
+                    }
+                }
+            });
+            var init = jQuery.fn.init = function (selector) {
+
+                if (!selector) {
+                    return this;
+                }
+                if (jQuery.isFunction(selector)) {
+                    jQuery.ready(selector);
+                } else if (typeof selector == 'string') {
+                    selector = jQuery.trim(selector);
+                    if (init.isHtml(selector)) {
+                        var tempDiv = document.createElement('div');
+                        tempDiv.innerHTML = selector;
+                        [].push.apply(this, tempDiv.childNodes);
+
+                    } else {
+                        try {
+                            var nodes = document.querySelectorAll(selector);
+                            [].push.apply(this, nodes);
+
+                        } catch (e) {
+                            this.length = 0;
+
+                        }
+                    }
+
+                } else if (init.isLikeArray(selector)) {
+                    [].push.apply(this, [].slice.call(selector));
+                } else {
+                    this[0] = selector;
+                    this.length = 1;
+                }
+
+            }
+            init.prototype = jQuery.fn;
+            w.jQuery = w.$ = jQuery;
+        }(window));
+
+
+
+
+
+
+
+        function init(selector) {
+
+        }
+
+
+        // var a = new init([1, 2, 3, 4]);
+        // console.log(a);
+    </script>
+</head>
+
+<body>
+
+</body>
+
+</html>

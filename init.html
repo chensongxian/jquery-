@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script>
+        init.isHtml = function (html) {
+            if (!html) {
+                return false;
+            }
+            if (html.charAt(0) == '<' && html.charAt(html.length - 1) == '>' && html.length >= 3) {
+                return true;
+            }
+            return false;
+        }
+
+        init.trim = function (str) {
+            if (!typeof str == 'string') {
+                return str;
+            }
+            if (str.trim) {
+                return str.trim();
+            }
+            return str.replace(/^\s+|\s+$/g, '');
+        }
+        init.isFunction = function (fn) {
+            if (typeof fn == 'function') {
+                return true;
+            }
+            return false;
+        }
+        init.isWindow = function (w) {
+            if (w.window == w) {
+                return true;
+            }
+            return false;
+        }
+        init.isLikeArray = function (arr) {
+            if (init.isFunction(arr) || init.isWindow(arr) || !typeof arr == 'object') {
+                return false;
+            }
+            if (({}).toString.call(arr) == '[object Array]') {
+                return true;
+            }
+            if (('length' in arr) && (arr.length === 0) || (arr.length - 1 in arr)) {
+                return true;
+            }
+            return false;
+        }
+
+        function init(selector) {
+            if (!selector) {
+                return this;
+            } else if (typeof selector == 'string') {
+                if (init.isHtml(selector)) {
+                    var tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = selector;
+                    [].push.apply(this, tempDiv.childNodes);
+                    return this;
+                } else {
+                    try {
+                        var nodes = document.querySelectorAll(selector);
+                        [].push.apply(this, nodes);
+                        return this;
+                    } catch (e) {
+                        this.length = 0;
+                        return this;
+                    }
+                }
+
+            } else if (init.isLikeArray(selector)) {
+                [].push.apply(this, selector);
+            } else {
+                this[0] = selector;
+                this.length = 1;
+            }
+        }
+        function each(obj,fn){
+            var i,len,key;
+            if('length' in obj){
+                for(i=0,len=obj.length;i<len;i++){
+                    if(fn.call(obj[i],i,obj[i])===false){
+                        break;
+                    }
+                }
+            }else{
+                for(key in obj){
+                    if(fn.call(obj[key],key,obj[key])){
+                        break;
+                    }
+                }
+            }
+        }
+        function map(obj,fn){
+            var i,len,key,result=[];
+            if('length' in obj){
+                for(i=0,len=obj.length;i<len;i++){
+                    result.push(fn.call(obj[i],obj[i],i));
+                }
+            }else{
+                for(key in obj){
+                    result.push(fn.call(obj[key],obj[key],key));
+                }
+            }
+            return result;
+        }
+        var a = new init([1, 2, 3, 4]);
+        console.log(a);
+    </script>
+</head>
+
+<body>
+
+</body>
+
+</html>
